@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>MEVE</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/reset.css" type="text/css" media="all">
+  <link rel="stylesheet" href="css/grid.css" type="text/css" media="all">
+  <link rel="stylesheet" href="css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="css/jquery-ui-1.8.5.custom.css" type="text/css" media="all">
+  <script type="text/javascript" src="js/jquery-1.8.2.min.js" ></script>
+	<script type="text/javascript" src="js/jquery.cycle.all.js"></script>
+  <script type="text/javascript" src="js/jquery-ui-1.8.5.custom.min.js"></script>
+</head>
+
+<body>
+  <header>
+    <nav>
+    	<div class="container">
+        <div class="wrapper">
+          <h1><strong>MEVE - Monitoring Electric Vehicles for Enterprises</strong></h1>
+        </div>
+      </div>
+    </nav>
+    
+  </header>
+  <section id="content">
+  	<div class="top">
+    	<div class="container">
+      	<div class="clearfix">
+          <section id="gallery">
+          	<div class="pics">
+            	<img src="images/slide1.jpg" alt="" width="495" height="329">
+				<img src="images/slide2.jpg" alt="" width="495" height="329">
+				<img src="images/slide3.jpg" alt="" width="495" height="329">
+				<img src="images/slide4.jpg" alt="" width="495" height="329">
+				<img src="images/slide5.jpg" alt="" width="495" height="329">
+				<img src="images/slide6.jpg" alt="" width="495" height="329">
+            </div>
+            <a href="#" id="prev"></a>
+            <a href="#" id="next"></a>
+          </section>
+          <section id="intro">
+          	<div class="inner">
+          	  <h2>Electric Vehicle<br /><span>Battery Monitor</span></h2>
+              <p>Electric vehicle production is a growing industry and relatively new to the automotive market. 
+This project will create a software monitoring system for an electric car provided by Toronto Electric. 
+The car has an integrated battery monitoring system (BMS) which consists of an array of 
+microcontrollers monitoring 24 four-cell modules. The BMS is able to transmit its information to a 
+processor board designed by Archronix Inc. The processor board has the ability to transmit the battery 
+information to a local web page and to a GSM modem. The battery is the most expensive product within 
+the electric vehicle. With a monitoring system that keeps track of history and instances of results, much 
+information can be graphed versus specific daily conditions to further improve the batteries.</p>
+              <a href="http://dev.arcx.com/ecar/includes/reports/pev_final_report_700.pdf" class="extra-button">Design Report</a>
+          	</div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <div class="middle">
+    	<div class="container">
+      	<div class="wrapper">
+        	<div class="grid3 first">
+          	<ul id = "home_navbar" class="categories">
+            	<li><a href="general">The Project</a></li>
+              <li><a href="team">Our Team</a></li>
+              <li><a href="progress">Progress</a></li>
+			  <li><a href="../analysis">Analysis Graphs</a></li>
+              <li><a href="documenation">Code & Documentation</a></li>
+            </ul>
+          </div>
+        	<div class="grid9">
+			<script type="text/javascript">
+				$(document).ready(function() {
+
+					$('#home_content').load('home_content/general.html', function(){
+							$('#home_content').trigger('create');
+							});
+
+					//handle menu clicks
+					$('ul#home_navbar li a').click(function(){
+						var page = $(this).attr('href');
+						if(page == "../analysis"){
+							return true;
+						}else{
+							$('#home_content').load('home_content/'+page+'.html', function(){
+								$('#home_content').trigger('create');
+							}).hide().fadeIn('fast');
+							//need to prevent default action
+							return false;
+						}
+					});
+
+				});
+
+				</script>
+			<div id="home_content">
+			<!-- Home content will be loaded in here...-->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <footer>
+    <div class="container">
+    	<div class="wrapper">
+      	<div>Ryerson 2012-2013 Engineering Design Project for Electric and Computer Engineering </div>
+      </div>
+    </div>
+  </footer>
+  <script type="text/javascript">
+		$(document).ready(function() {
+			$('.pics').cycle({
+				fx: 'toss',
+				next:   '#next', 
+				prev:   '#prev' 
+			});
+		});
+	</script>
+</body>
+</html>

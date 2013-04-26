@@ -1,0 +1,76 @@
+<html>
+<script src="jquery-1.8.2.min.js"></script>
+<script type="text/javascript">
+
+    var dataBuffer = new Array();
+
+    //request ecar json data
+    function jsonRequest()
+    {		
+    console.log("Getting JSON data...");
+        $.getJSON('http://192.168.1.103/test/state.json', function(data) {	
+                //attatch car guid and post_time to all json data
+                data["guid"] = "d9066b4c-309c-4f28-a9cc-a5df8694bc41";
+                data["post_time"] = displayTime();
+                console.log(data);				
+		dataBuffer.push(data);
+        });	
+    }
+    
+    //post ecar json data
+    function jsonPost(){
+        var success = true;
+        for(var i=0; i < dataBuffer.chunk(3).length; i++){
+            var postData = {bms:dataBuffer.chunk(3)[i]};
+            console.log("Posting to server...");
+               $.ajax({
+                    type: 'POST',
+                    url: "http://dev.arcx.com/ecar/api/ecar_receive.php",
+                    data: postData,
+                    success: function(data){
+                        var jsonData = JSON.parse(data);
+                        if(jsonData["success"] == 1){
+                            console.log("Successfull post, clearing buffer..");                        
+                        }else{
+                           success = false;
+                           console.log("Unsuccesful post to database, e = " + jsonData["error_msg"]);
+                        }
+                    }
+            }); 
+        }
+        //clear the data buffer after sending its information
+        if(success) dataBuffer = []; 
+    }
+    
+    //split array into chunks of 3
+    Array.prototype.chunk = function(chunkSize) {
+        var array=this; //use the array prototype is called on
+        return [].concat.apply([],
+            array.map(function(elem,i) {
+                return i%chunkSize ? [] : [array.slice(i,i+chunkSize)];
+            })
+        );
+    }
+    
+    function stressTest(size){
+        for(var i = 0; i < size; i++){
+            jsonRequest();
+        }
+    }
+    
+    
+    //function to get the current time to post in SQL Server
+    function displayTime()
+    {
+            //get current time in SQL approriate format 
+            var localTime = new Date();
+            var year= localTime.getFullYear();
+            var month= localTime.getMonth() +1;
+            var date = localTime.getDate();
+            var hours = localTime .getHours();
+            var minutes = localTime .getMinutes();
+            var seconds = localTime .getSeconds();
+            return (year+"-"+month+"-"+date+" "+hours+":"+minutes+":"+seconds);
+    }
+</script>
+</html>

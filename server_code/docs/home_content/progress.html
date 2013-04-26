@@ -1,0 +1,105 @@
+<h3>Progress Report 1</h3>
+<h3>Software Progress</h3>
+<p>
+The current status of the software poriton of the EDP is as follows. The android application overall design is complete and is currently under
+reconstruction due to a mover over to a web view interface. We still need to design our javascript interface to share the approriate information. The login
+form must also be redesigned on the webpage to allow for sessions to be started. This will require removing the current login screen from the android application itself
+and replacing it with the webview login. Using protocols learned in COE768 (Computer Networks), we will design the login authentication based on CHAP. </br></br>
+
+The server is currently up and running and is going displaying moc data generated within the javascript. The next step is to recreate the database on the server machine
+to allow to work on the login interface and data transmission interfaces.
+</p>
+
+<h3>Hardware Progress</h3>
+<p>
+The hardware portion of the design project includes multiple steps in order to achieve the final
+outcome. At this time, the majority of the hardware is in hand. The explorer 16 board, which included in
+the lab portion of ELE744, is used as a test interface for the microcontroller. It includes the basics such
+as LCD and communication interfaces that are adequate for our purposes. The microchip being used
+will be the PIC33F that comes with the 16 starter kit. It has the appropriate specifications and has CAN
+capability which will be needed to communicate with the vehicle. Research on temperature and battery
+voltage sensors is still being made at this time. The CAN interface will be done through a CAN/LIN PICtail
+(Plus) daughter board which can be used with the explorer 16 development board. It provides two ECAN
+nodes. </br></br> 
+
+At this point, we are implementing basic LCD and switch code to initialize the functions of
+the board while familiarizing ourselves with the microcontroller. Once this is done, SPI interface will be
+implemented such that we can push information via serial port to a computer.
+</p>
+
+<h3>Progress Report 2</h3>
+<h3>1. Tasks Outlined in Previous Weekly Progress Report </h3>
+<p>
+	The LCD and, buttons and RTC need to be initialized on the PIC33F microchip.
+</p>
+
+<h3>2. Progress Made in Reporting Week </h3>
+<p>
+At this point in time, the beginnings of a functioning microcontroller are beginning to emerge. 
+We have started programming basic code on the PIC33F. So far, the PIC LCD is initialized with both lines on the LCD functioning and showing text. 
+Essentially, the code design will take values and will convert them into character variables to show them on the LCD. 
+This works best as the data received stays in its variable type without being manipulated. 
+This way when data is transferred to the CAN bus, the data will not be read from the LCD rather it will be read from the sensors themselves, thus any issues will be minimalized.
+</br></br>
+
+Along with hardware, a rough design has been made for the simulation of the battery modules. 
+We can use this design to simulate the battery and later implement it into the code such that if the battery is imbalanced the microcontroller can flag that error and fix it accordingly. 
+Lastly, the CAN bus daughter board has been ordered and will arrive within two weeks.
+</p>
+
+<h3>3. Difficulties Encountered in Reporting Week  </h3>
+<p>
+	There was a lot of difficulty in importing the PIC24F code from Daniel’s ELE744 code to the PIC33F code. 
+	We essentially had to rewrite the entire LCD initialization in order to for it work. 
+	The software used also needed to be updated to work with the PIC33F board which took a while to realize. 
+</p>
+
+<h3>4. Tasks to Be Completed in Next Week   </h3>
+<p>
+The next step is to apply the RTC (real time clock) to the code and show the time on the LCD. 
+Once this is done, the buttons conveniently placed on the explorer 16 board will be implemented such that when one of them is pressed it will store the time in a variable. 
+This will be the early stages of input captures which we can send to the CAN bus periodically.
+</p>
+
+<h3>Progress Report 3</h3>
+
+<h3>1. Tasks Outlined in Previous Weekly Progress Report </h3>
+<p>
+	Finalaize hardware design plan and obtain approriate location information to anaylize battery in different conditions.
+</p>
+
+<h3>2. Progress Made in Reporting Week </h3>
+<p>
+HW: The Pic board has been setup and the daugther board has arrived. We are currently working on a FSM to target all of our design specifications. 
+
+</br>
+
+We were succesfully able to implement the yahoo weather API for weather conditions and the google api for elevation. The results can be seen below.
+
+<script src="../scripts/jquery-1.8.2.min.js"></script>
+	 <script type="text/javascript">
+	 $(document).ready(function() {
+		 $('#result').load('http://dev.arcx.com/ecar/classes/yapi.php', function(){
+				$('#result').trigger('create');
+				});
+	});
+</script>
+<div id="result" style="test-align:center;">Loading...</br>
+<img src="content_images/ajax-loader.gif" />
+</div>
+
+</p>
+
+<h3>3. Difficulties Encountered in Reporting Week  </h3>
+<p>
+	The server database has yet to be setup. This will delay our testing plans a bit and move our schedule around to work on parts of the project that can be done without a server database.
+</p>
+
+<h3>4. Tasks to Be Completed in Next Week   </h3>
+<p>
+	The next week will involve completing the HW and SW design reports. We will try to implement our C code udp sending program into the E-Car to be able to obtain the address of the e-car. Using this address we can begin to request
+	the approriate JSON information from the car itself. 
+	
+	</br></br>
+	We will also begin our FSM for the hw design to encapsulate all the hw design features.
+</p>

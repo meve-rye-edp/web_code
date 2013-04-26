@@ -1,0 +1,59 @@
+<h3 style="color:#17ADCF"><strong>System Diagram</strong></h3>
+<img src="images/system_diagram.png" style="width:100%;"/>
+<h3 style="color:#17ADCF"><strong>Objective</strong></h3>
+
+<br/>
+
+<p>
+The goal of this project will be to integrate the GSM modem to wirelessly transmit JSON information to a PHP cloud server provided by Archronix. The PHP server will then store the information into a database where battery analysis can be performed. Using the statistics stored in the database, this project will look to explore the non-linear behavior of an electric car battery using modern software architecture. The effects to be explored are battery state of charge versus weather conditions and outside temperature. This analysis will allow users to get a more detailed look into battery performance. 
+</p>
+
+<br/>
+
+<p>
+Alongside the software objective, hardware emulation will be created to demonstrate a simplified view of the battery management system. A four-cell array of lithium-ion batteries will be connected up to a differential circuit that will access individual cell voltages. When a battery is observed to be at a lower charge then its neighboring batteries, a flag will alert the system of an imbalance. A microcontroller will be used to consistently read the information using digital input/output.  The microcontroller will also send information from a serial bus to be used as debug information. Finally, a bonus CAN controller daughter board will be used, if time permits, to send CAN protocol information to the Archronix Morpheus processor board. From the board a web page can be developed to visually broadcast the voltage information of the individual cells. 
+</p>
+
+
+<h3 style="color:#17ADCF"><strong>Design Specifications</strong> </h3>
+<br/>
+
+<p>Software
+<ul>
+	<li>Receive real-time battery information from E-Car over GSM</li>
+	<li>Receive location information to view current location status on Google Maps</li>
+	<li>Analyze battery information versus weather conditions/temperature</li>
+	<li>Application should be used on a smart phone (Android)</li>
+	<li>Application will notify user when battery charge is low and any faults occur </li>
+</ul>
+</p>
+
+<br/>
+
+<p>Hardware
+<ul>
+	<li>Create a differential voltage circuit that can tap 4 cells in series</li>
+	<li>Send this information to a microcontroller via digital I/O</li>
+	<li>Display the information on the LCD of the microcontroller</li>
+	<li>Send debug information via a serial bus</li>
+	<li>Send information via CAN (bonus)</li>
+	<li>Display real-time information from the Morpheus board (bonus)</li>
+</ul>
+</p>
+
+
+<h3 style="color:#17ADCF"><strong>Design Methodology</strong>  </h3>
+<br/>
+
+<p>The tools used in the design process: 
+<ul>
+	<li>PHP (Server side scripting language)</li>
+	<li>JavaScript (along with jQuery & other libraries)</li>
+	<li>HTML/CSS</li>
+	<li>C in MPLabs</li>
+	<li>MicroChip Pic Explorer Board/Can Daughter Board </li>
+	<li>ArcX Morpheus Processor Board</li>
+</ul>
+<br/>
+The design methodology is to abstract the hardware emulation from the actual software integration with the real e-car. The software will be broken up into server side and client side development. This allows for parallel programming of the entire application without an overload of dependency of workloads being finished. The hardware emulation will be tackled by the third student as a side project to demonstrate the functionality and internals of the BMS and its communication flow. Each of the team members will help in all of the individual projects but will be assigned priority of their own. 
+</p>

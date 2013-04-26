@@ -1,0 +1,205 @@
+<html manifest="cache.appcache">
+<div id="version">1.2.0.0</div>
+<script src="jquery-1.8.2.min.js"></script>
+<script type="text/javascript">
+    var genStates = ["Off", "Logged Out", "Logged In", "On", "Turning Off", "Locking", "Doors Locked", "Doors Unlocked", "Monitoring Batteries"];
+    var appCache = window.applicationCache;
+    var dataBuffer = new Array();
+    var requestPeriod = 1000*60*15;
+    var carOff = true; 
+    var networkConnection=true; //set to current network state
+    var jsonInterval=setInterval(function(){jsonRequest()}, requestPeriod);
+    var cacheInterval=setInterval(function(){checkCacheUpdate()}, 1000*60*30); //check for cache updates every hour
+    var pingInterval=setInterval(function(){jQueryPing()}, 1000*60*15); //check for network connection every 45 minutes
+    var carOnInterval=setInterval(function(){getAppState()}, 5000); 
+    
+    $(document).ready(function() {
+        console.log("Current Version " + $('#version').text());
+        phpLogger("Current Version " + $('#version').text());
+        jQueryPing(); //establish if network is available by pinging home server, send cache version 
+        window.applicationCache.addEventListener('updateready', onUpdateReady);
+        if(window.applicationCache.status === window.applicationCache.UPDATEREADY) {
+          onUpdateReady();
+        }
+        //checkCacheUpdate();
+        //jsonRequest(); //request on load...
+    });
+
+    function checkCacheUpdate(){
+        console.log("Checking for updates...");
+        phpLogger("Checking for updates...");
+        window.applicationCache.update()
+        }
+
+    function onUpdateReady() {
+      console.log("Found new version. Swapping...");
+      phpLogger("Found new version. Swapping...");
+      appCache.swapCache();
+      window.location.reload();
+    }
+
+    function jQueryPing(){
+        console.log("Sending ping to dev.arcx.com/ecar");
+        //phpLogger("Sending ping to dev.arcx.com/ecar");
+        $.ajax({url: 'http://dev.arcx.com/ecar',
+            type: 'GET',
+            dataType: 'html',
+            timeout: 30000,
+            success : function() { 
+                    networkConnection = true; 
+                    console.log("Received response, network connection is online");
+                    phpLogger("Received response, network connection is online");
+            },
+            error : function() {
+                    networkConnection = false;
+                    console.log("Timed out, network connection is offline");
+                    phpLogger("Timed out, network connection is offline");
+            }
+        });
+    }
+
+    //find the current app state to determine if the car is on/off
+    //when the car is on, reset the json interval to pull information faster
+    //when the car is off, set the json interval to pull every 15min
+    //http://192.168.3.201/cgi-bin/state.json
+    function getAppState(){
+        $.getJSON('http://192.168.3.201/cgi-bin/state.json', function(data) {	
+            //attatch car guid and post_time to all json data
+            console.log("Car state is " + genStates[data["general"]["appState"]]) 
+            if(data["general"]["appState"] == 3){ //car is on
+                    carOff = false; 
+                    if(requestPeriod != 1000*10){
+                        requestPeriod = 1000*10; //gather info every 10s
+                        clearInterval(jsonInterval);
+                        jsonInterval=setInterval(function(){jsonRequest()}, requestPeriod);
+                        console.log("Car on, changing request speed to 10s");
+                        phpLogger("Car on, changing request speed to 10s");
+                    }
+            }else{
+                    carOff = true;
+                    if(requestPeriod != 1000*60*15){
+                        requestPeriod = 1000*60*15; //gather info every 15min
+                        clearInterval(jsonInterval);
+                        jsonInterval=setInterval(function(){jsonRequest()}, requestPeriod);
+                        console.log("Car off, changing request speed to 15min");
+                        phpLogger("Car off, changing request speed to 15min");
+                        if(networkConnection && carOff){ //post if internet connection available 
+                            console.log("Car has finished driving. Sending data. " + dataBuffer.length + " data points were captured.");
+                            phpLogger("Car has finished driving. Sending data. " + dataBuffer.length + " data points were captured.");
+                            writeState();
+                        }
+                    }
+            }
+        });	
+    }
+
+    //request ecar json data
+    function jsonRequest()
+    {		
+    console.log("Getting JSON data...");
+        $.getJSON('http://192.168.3.201/cgi-bin/state.json', function(data) {	
+            //attatch car guid and post_time to all json data
+            data["guid"] = "d9066b4c-309c-4f28-a9cc-a5df8694bc41";
+            data["post_time"] = displayTime();
+            console.log(data);	
+            if (dataBuffer.length < 3000){ 				
+                    dataBuffer.push(data);
+            }
+            if(networkConnection && carOff){
+                    writeState();
+            }
+        });	
+    }
+           
+    //post ecar json data
+    function jsonPost(){
+        var success = true;
+        for(var i=0; i < dataBuffer.chunk(3).length; i++){
+            var postData = {bms:dataBuffer.chunk(3)[i]};
+            console.log("Posting to server...");
+               $.ajax({
+                    type: 'POST',
+                    url: "http://dev.arcx.com/ecar/api/ecar_receive.php",
+                    data: postData,
+                    success: function(data){
+                        var jsonData = JSON.parse(data);
+                        if(jsonData["success"] == 1){
+                            console.log("Successfull post");                        
+                        }else{
+                           success = false;
+                           console.log("Unsuccesful post to database, e = " + jsonData["error_msg"]);
+                           phpLogger("Unsuccesful post to database, e = " + jsonData["error_msg"]);
+                        }
+                    }
+            }); 
+        }
+        //clear the data buffer after sending its information
+        if(success){
+            console.log("All posts succesfful, clearing buffer")
+            dataBuffer = []; 
+        }
+    }
+    
+    //split array into chunks of 3
+    Array.prototype.chunk = function(chunkSize) {
+        var array=this; //use the array prototype is called on
+        return [].concat.apply([],
+            array.map(function(elem,i) {
+                return i%chunkSize ? [] : [array.slice(i,i+chunkSize)];
+            })
+        );
+    }
+    
+    
+    //post ecar json data
+    function writeState(){
+		console.log("Writing data..");
+        $.ajax({
+        type : "POST",
+        url : "http://dev.arcx.com/ecar/cron/state.php",
+        dataType : 'json', 
+        data : {
+            json : JSON.stringify(dataBuffer[dataBuffer.length-1]) /* convert here only */
+        },
+        success: function(data){
+            var responseData = JSON.stringify(data);
+            console.log("Response: " + responseData);
+            if(JSON.parse(responseData)["success"]==1){
+				console.log("Successful write... Posting data");
+                //post the data to dB
+                jsonPost();
+            }
+          },
+            error : function(XMLHttpRequest, textStatus, errorThrown) {
+                    console.log("Error occured while writing " + errorThrown);
+                    phpLogger("Error occured while writing, posting anyway... " + errorThrown);
+                    jsonPost();
+            }
+        });
+    }
+    
+    //custom made php logging service to log client side data
+    function phpLogger(msg){
+        var postData = {log:msg};
+           $.ajax({
+                type: 'POST',
+                url: "http://dev.arcx.com/ecar/cron/logger.php",
+                data: postData
+        });
+    }
+
+    //function to get the current time to post in SQL Server
+    function displayTime(){
+        //get current time in SQL approriate format 
+        var localTime = new Date();
+        var year= localTime.getFullYear();
+        var month= localTime.getMonth() +1;
+        var date = localTime.getDate();
+        var hours = localTime .getHours();
+        var minutes = localTime .getMinutes();
+        var seconds = localTime .getSeconds();
+        return (year+"-"+month+"-"+date+" "+hours+":"+minutes+":"+seconds);
+    }
+    
+</script>
+</html>

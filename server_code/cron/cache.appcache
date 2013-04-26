@@ -1,0 +1,9 @@
+CACHE MANIFEST
+# Dec/19/2012: version - 1.2.0.0
+
+CACHE:
+ecar_cycle.html
+jquery-1.8.2.min.js
+
+NETWORK:
+*
