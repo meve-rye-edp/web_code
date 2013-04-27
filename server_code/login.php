@@ -96,8 +96,8 @@ class DB_Helper {
     
     public function dbConnect(){
          //Attempt server connection
-        $serverName = "192.168.2.62"; //serverName\instanceName
-        $connectionInfo = array( "Database"=>"MEV", "UID"=>"mev_dba", "PWD"=>"ryerson2012");
+        $serverName = "192.168.2.**"; //serverName\instanceName
+        $connectionInfo = array( "Database"=>"MEV", "UID"=>"mev_dba", "PWD"=>"");
         $conn = sqlsrv_connect( $serverName, $connectionInfo);
         return $conn;
         
